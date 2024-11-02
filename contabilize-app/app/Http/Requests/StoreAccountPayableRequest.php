@@ -11,7 +11,7 @@ class StoreAccountPayableRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,11 @@ class StoreAccountPayableRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'description' => 'required|string|max:255',
+            'value' => 'required|numeric|min:0',
+            'due_date' => 'required|date|after:today',
+            'status' => 'required|boolean',
+            'category' => 'nullable|string|in:' . implode(',', \App\Enums\CategoryEnum::cases()),
         ];
     }
 }

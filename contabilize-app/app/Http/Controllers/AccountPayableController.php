@@ -15,8 +15,6 @@ use Illuminate\Support\Facades\Log;
 
 class AccountPayableController extends Controller
 {
-    use AuthorizesRequests;
-
     public function __construct()
     {
         $this->authorizeResource(AccountPayable::class, 'accountPayable');

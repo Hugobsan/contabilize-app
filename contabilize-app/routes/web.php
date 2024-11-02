@@ -8,9 +8,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::resource('accounts-payable', AccountPayableController::class);
-
 Route::middleware(['auth'])->group(function () {
-    
+    Route::resource('accounts-payable', AccountPayableController::class);
     Route::get('/categories', [CategoryController::class, 'getCategories']);
 });

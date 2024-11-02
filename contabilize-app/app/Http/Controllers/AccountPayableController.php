@@ -6,7 +6,6 @@ use App\Models\AccountPayable;
 use App\Http\Requests\StoreAccountPayableRequest;
 use App\Http\Requests\UpdateAccountPayableRequest;
 use Exception;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;

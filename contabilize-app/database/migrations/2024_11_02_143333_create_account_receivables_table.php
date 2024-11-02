@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('accounts_receivable', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('description');
             $table->decimal('value', 10, 2);
             $table->timestamp('due_date')->index();

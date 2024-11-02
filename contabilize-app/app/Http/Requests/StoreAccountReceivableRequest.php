@@ -11,7 +11,7 @@ class StoreAccountReceivableRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,26 @@ class StoreAccountReceivableRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'description' => 'required|string|max:255',
+            'value' => 'required|numeric|min:0',
+            'due_date' => 'required|date|after_or_equal:today',
+            'next_due_date' => 'nullable|date|after:due_date',
+            'status' => 'required|boolean',
+            'category' => 'nullable|in:' . implode(',', array_map(fn($e) => $e->value, \App\Enums\ReceivableCategoryEnum::cases())),
+            'recurrence_period' => 'nullable|in:' . implode(',', array_map(fn($e) => $e->value, \App\Enums\RecurrencePeriodEnum::cases())),
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'description' => 'descrição',
+            'value' => 'valor',
+            'due_date' => 'data de vencimento',
+            'next_due_date' => 'data da próxima recorrência',
+            'status' => 'status',
+            'category' => 'categoria',
+            'recurrence_period' => 'período de recorrência',
         ];
     }
 }

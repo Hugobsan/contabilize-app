@@ -13,7 +13,7 @@ class AccountReceivablePolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class AccountReceivablePolicy
      */
     public function view(User $user, AccountReceivable $accountReceivable): bool
     {
-        //
+        return $user->id === $accountReceivable->user_id;
     }
 
     /**
@@ -29,7 +29,7 @@ class AccountReceivablePolicy
      */
     public function create(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
@@ -37,7 +37,7 @@ class AccountReceivablePolicy
      */
     public function update(User $user, AccountReceivable $accountReceivable): bool
     {
-        //
+        return $user->id === $accountReceivable->user_id;
     }
 
     /**
@@ -45,7 +45,7 @@ class AccountReceivablePolicy
      */
     public function delete(User $user, AccountReceivable $accountReceivable): bool
     {
-        //
+        return $user->id === $accountReceivable->user_id;
     }
 
     /**
@@ -53,7 +53,7 @@ class AccountReceivablePolicy
      */
     public function restore(User $user, AccountReceivable $accountReceivable): bool
     {
-        //
+        return $user->id === $accountReceivable->user_id;
     }
 
     /**
@@ -61,6 +61,6 @@ class AccountReceivablePolicy
      */
     public function forceDelete(User $user, AccountReceivable $accountReceivable): bool
     {
-        //
+        return $user->id === $accountReceivable->user_id;
     }
 }

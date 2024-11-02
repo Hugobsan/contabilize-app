@@ -29,4 +29,15 @@ class UpdateAccountPayableRequest extends FormRequest
             'category' => 'nullable|string|in:' . implode(',', array_map(fn($e) => $e->value, \App\Enums\CategoryEnum::cases())),
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'description' => 'descrição',
+            'value' => 'valor',
+            'due_date' => 'data de vencimento',
+            'status' => 'status',
+            'category' => 'categoria',
+        ];
+    }
 }

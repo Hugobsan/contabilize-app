@@ -29,4 +29,15 @@ class StoreAccountPayableRequest extends FormRequest
             'category' => 'nullable|string|in:' . implode(',', \App\Enums\CategoryEnum::cases()),
         ];
     }
+
+    public function attributes(): array
+    {
+        return [
+            'description' => 'descrição',
+            'value' => 'valor',
+            'due_date' => 'data de vencimento',
+            'status' => 'status',
+            'category' => 'categoria',
+        ];
+    }
 }

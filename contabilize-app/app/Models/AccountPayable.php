@@ -4,12 +4,14 @@ namespace App\Models;
 
 use App\Enums\CategoryEnum;
 use App\Enums\StatusEnum;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AccountPayable extends Model
 {
     use SoftDeletes;
+    use HasFactory;
     protected $table = "accounts_payable";
 
     protected $fillable = [

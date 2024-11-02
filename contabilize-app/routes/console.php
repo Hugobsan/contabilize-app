@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Agendamento diário do comando para processar receitas recorrentes
 Schedule::command('receivables:process-recurring')->daily();
+
+// Agendamento diário do comando para notificar parcelas atrasadas
+Schedule::command('notify:overdue-installments')->daily();

@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\AccountPayable;
 use Illuminate\Database\Seeder;
 
 class AccountPayableSeeder extends Seeder
@@ -12,6 +12,6 @@ class AccountPayableSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        AccountPayable::factory()->count(50)->create();
     }
 }

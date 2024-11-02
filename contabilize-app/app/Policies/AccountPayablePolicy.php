@@ -13,7 +13,8 @@ class AccountPayablePolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        // Permite que qualquer usuário autenticado visualize a lista de contas (somente as suas próprias)
+        return true;
     }
 
     /**
@@ -21,7 +22,8 @@ class AccountPayablePolicy
      */
     public function view(User $user, AccountPayable $accountPayable): bool
     {
-        //
+        // Permite que o usuário visualize apenas suas próprias contas
+        return $user->id === $accountPayable->user_id;
     }
 
     /**
@@ -29,7 +31,8 @@ class AccountPayablePolicy
      */
     public function create(User $user): bool
     {
-        //
+        // Permite que qualquer usuário autenticado crie uma nova conta a pagar para si mesmo
+        return true;
     }
 
     /**
@@ -37,7 +40,8 @@ class AccountPayablePolicy
      */
     public function update(User $user, AccountPayable $accountPayable): bool
     {
-        //
+        // Permite que o usuário atualize apenas suas próprias contas
+        return $user->id === $accountPayable->user_id;
     }
 
     /**
@@ -45,7 +49,8 @@ class AccountPayablePolicy
      */
     public function delete(User $user, AccountPayable $accountPayable): bool
     {
-        //
+        // Permite que o usuário exclua apenas suas próprias contas
+        return $user->id === $accountPayable->user_id;
     }
 
     /**
@@ -53,7 +58,8 @@ class AccountPayablePolicy
      */
     public function restore(User $user, AccountPayable $accountPayable): bool
     {
-        //
+        // Permite que o usuário restaure apenas suas próprias contas
+        return $user->id === $accountPayable->user_id;
     }
 
     /**
@@ -61,6 +67,7 @@ class AccountPayablePolicy
      */
     public function forceDelete(User $user, AccountPayable $accountPayable): bool
     {
-        //
+        // Permite que o usuário exclua permanentemente apenas suas próprias contas
+        return $user->id === $accountPayable->user_id;
     }
 }

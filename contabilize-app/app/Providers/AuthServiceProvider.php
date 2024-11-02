@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use App\Models\AccountPayable;
+use App\Models\AccountReceivable;
 use App\Policies\AccountPayablePolicy;
+use App\Policies\AccountReceivablePolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -15,6 +17,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         AccountPayable::class => AccountPayablePolicy::class,
+        AccountReceivable::class => AccountReceivablePolicy::class,
     ];
 
     /**

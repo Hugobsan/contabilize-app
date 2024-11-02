@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('accounts_payable', function (Blueprint $table) {
+        Schema::create('accounts_receivable', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained();
             $table->string('description');
             $table->decimal('value', 10, 2);
             $table->timestamp('due_date')->index();
             $table->boolean('status')->default(false);
             $table->string('category')->index()->nullable();
+            $table->string('recurrence_period')->nullable();
+            $table->timestamp('next_due_date')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
@@ -29,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('account_payables');
+        Schema::dropIfExists('account_receivables');
     }
 };

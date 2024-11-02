@@ -21,5 +21,6 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(AccountPayableSeeder::class);
+        $this->call(AccountReceivableSeeder::class);
     }
 }

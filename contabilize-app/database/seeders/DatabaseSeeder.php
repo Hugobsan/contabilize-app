@@ -19,8 +19,13 @@ class DatabaseSeeder extends Seeder
             'name' => 'Test User',
             'email' => 'test@example.com',
         ]);
-
-        $this->call(AccountPayableSeeder::class);
-        $this->call(AccountReceivableSeeder::class);
+        
+        $this->call([
+            AccountPayableSeeder::class,
+            AccountReceivableSeeder::class,
+            CreditCardSeeder::class,
+            CreditCardPurchaseSeeder::class,
+            PurchaseInstallmentSeeder::class,
+        ]);
     }
 }

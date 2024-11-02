@@ -2,22 +2,21 @@
 
 namespace Database\Factories;
 
+use App\Models\CreditCard;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\CreditCard>
- */
 class CreditCardFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = CreditCard::class;
+
     public function definition(): array
     {
         return [
-            //
+            'user_id' => User::factory(),
+            'nickname' => $this->faker->word,
+            'credit_limit' => $this->faker->randomFloat(2, 1000, 10000),
+            'available_limit' => $this->faker->randomFloat(2, 500, 10000),
         ];
     }
 }

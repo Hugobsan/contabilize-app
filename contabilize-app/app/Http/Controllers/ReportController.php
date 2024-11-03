@@ -25,21 +25,23 @@ class ReportController extends Controller
         $userId = Auth::id();
         $year = $request->input('year', now()->year);
         $month = $request->input('month', now()->month);
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
+        $startDate = $request->input('start_date', now()->startOfMonth()->format('Y-m-d'));
+        $endDate = $request->input('end_date', now()->endOfMonth()->format('Y-m-d'));
 
         $reportData = [
             'monthlyExpenses' => $this->financialReportService->getMonthlyExpensesByCategory($userId, $year, $month),
-            // 'balance' => $this->financialReportService->getBalanceBetweenAccounts($userId),
-            // 'transactions' => $this->financialReportService->getCreditCardTransactions($userId, $year, $month),
-            // 'balanceEvolution' => $this->financialReportService->getBalanceEvolution($userId, $startDate, $endDate),
+            'balance' => $this->financialReportService->getBalanceBetweenAccounts($userId),
+            'transactions' => $this->financialReportService->getCreditCardTransactions($userId, $year, $month),
+            'balanceEvolution' => $this->financialReportService->getBalanceEvolution($userId, $startDate, $endDate),
         ];
+
+        // return response()->json($reportData);
 
         return Inertia::render('Dashboard', [
             'reportData' => $reportData,
         ]);
 
-        // return response()->json($reportData);
+        
     }
 
     /**

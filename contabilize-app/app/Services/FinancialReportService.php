@@ -81,42 +81,47 @@ class FinancialReportService
      */
     public function getBalanceEvolution($userId, $startDate, $endDate)
     {
+        // Obter despesas e receitas
         $expenses = AccountPayable::where('user_id', $userId)
             ->whereBetween('due_date', [$startDate, $endDate])
             ->select(DB::raw('DATE(due_date) as date'), DB::raw('SUM(value) as total_expenses'))
             ->groupBy('date')
             ->orderBy('date')
-            ->get();
+            ->get()
+            ->keyBy('date');
 
         $receivables = AccountReceivable::where('user_id', $userId)
             ->whereBetween('due_date', [$startDate, $endDate])
             ->select(DB::raw('DATE(due_date) as date'), DB::raw('SUM(value) as total_receivables'))
             ->groupBy('date')
             ->orderBy('date')
-            ->get();
+            ->get()
+            ->keyBy('date');
 
-        // Combinar despesas e receitas em um formato unificado
-        $combinedData = [];
-        foreach ($expenses as $expense) {
-            $combinedData[$expense->date]['total_expenses'] = $expense->total_expenses;
-        }
-        foreach ($receivables as $receivable) {
-            $combinedData[$receivable->date]['total_receivables'] = $receivable->total_receivables;
-        }
-
-        // Calcular o saldo para cada data
-        $formattedData = [];
+        // Formatar dados em um intervalo contínuo de datas
         $currentBalance = 0;
-        foreach ($combinedData as $date => $data) {
-            $currentBalance += ($data['total_receivables'] ?? 0) - ($data['total_expenses'] ?? 0);
+        $formattedData = [];
+        $period = new \DatePeriod(
+            new \DateTime($startDate),
+            new \DateInterval('P1D'),
+            (new \DateTime($endDate))->modify('+1 day')
+        );
+
+        foreach ($period as $date) {
+            $dateString = $date->format('Y-m-d');
+            $dailyExpenses = $expenses->get($dateString)->total_expenses ?? 0;
+            $dailyReceivables = $receivables->get($dateString)->total_receivables ?? 0;
+
+            $currentBalance += $dailyReceivables - $dailyExpenses;
             $formattedData[] = [
-                'date' => $date,
-                'balance' => $currentBalance, // Saldo resultante de receitas - despesas
+                'date' => $date->format('c'), // Formato ISO 8601 para compatibilidade com o Chart.js
+                'balance' => $currentBalance,
             ];
         }
 
         return $formattedData;
     }
+
 
     /**
      * Summary of getBalanceBetweenAccounts

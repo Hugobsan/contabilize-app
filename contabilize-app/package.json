@@ -21,6 +21,7 @@
     },
     "dependencies": {
         "chart.js": "^4.4.6",
+        "chartjs-adapter-date-fns": "^3.0.0",
         "toastr": "^2.1.4",
         "vue-chartjs": "^5.3.2",
         "vuetify": "^3.7.3"

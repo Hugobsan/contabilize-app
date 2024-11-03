@@ -6,6 +6,7 @@ use App\Services\FinancialReportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Inertia\Inertia;
 
 class ReportController extends Controller
 {
@@ -34,12 +35,12 @@ class ReportController extends Controller
             'balanceEvolution' => $this->financialReportService->getBalanceEvolution($userId, $startDate, $endDate),
         ];
 
-        // Comentário para uso com Inertia:
-        // return Inertia::render('Reports/FinancialReport', [
-        //     'reportData' => $reportData,
-        // ]);
+        //dd("Aqui"); //Chegou até aqui
+        return Inertia::render('Dashboard', [
+            'reportData' => $reportData,
+        ]);
 
-        return response()->json($reportData);
+        // return response()->json($reportData);
     }
 
     /**

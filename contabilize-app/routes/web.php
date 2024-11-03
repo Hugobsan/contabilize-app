@@ -15,7 +15,7 @@ Route::get('/', function () {
 });
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
 
 Route::middleware(['auth'])->group(function () {
     // Rotas para contas a pagar e receber
@@ -36,9 +36,9 @@ Route::middleware(['auth'])->group(function () {
         ->only(['show', 'destroy']);
 
     //Rotas de relatório
-    Route::get('/dashboard', [ReportController::class, 'index']);
-    Route::get('/dashboard/pdf', [ReportController::class, 'downloadPdf']);
+    Route::get('/dashboard', [ReportController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/pdf', [ReportController::class, 'downloadPdf'])->name('dashboard.pdf');
 
     // Rota para logout
-    Route::get('/logout', [AuthController::class, 'logout'])->name('exit');
+    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });

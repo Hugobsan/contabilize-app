@@ -11,18 +11,30 @@ class StoreCreditCardRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            //
+            'nickname' => 'required|string|max:255',
+            'credit_limit' => 'required|numeric|min:0',
+            'available_limit' => 'required|numeric|min:0|lte:credit_limit', // Verifica se o limite disponível não excede o limite total.
+        ];
+    }
+
+    /**
+     * Custom attribute names for validation errors.
+     */
+    public function attributes(): array
+    {
+        return [
+            'nickname' => 'apelido',
+            'credit_limit' => 'limite de crédito',
+            'available_limit' => 'limite disponível',
         ];
     }
 }

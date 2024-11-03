@@ -3,64 +3,49 @@
 namespace App\Http\Controllers;
 
 use App\Models\PurchaseInstallment;
-use App\Http\Requests\StorePurchaseInstallmentRequest;
-use App\Http\Requests\UpdatePurchaseInstallmentRequest;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PurchaseInstallmentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function __construct()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StorePurchaseInstallmentRequest $request)
-    {
-        //
+        $this->authorizeResource(PurchaseInstallment::class, 'purchaseInstallment');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(PurchaseInstallment $purchaseInstallment)
+    public function show(PurchaseInstallment $purchaseInstallment): JsonResponse
     {
-        //
-    }
+        // Comentário para uso com Inertia:
+        // return Inertia::render('PurchaseInstallments/Show', ['installment' => $purchaseInstallment]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(PurchaseInstallment $purchaseInstallment)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdatePurchaseInstallmentRequest $request, PurchaseInstallment $purchaseInstallment)
-    {
-        //
+        return response()->json($purchaseInstallment);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(PurchaseInstallment $purchaseInstallment)
+    public function destroy(PurchaseInstallment $purchaseInstallment): JsonResponse
     {
-        //
+        DB::beginTransaction();
+        try {
+            $purchaseInstallment->delete();
+            DB::commit();
+
+            // Comentário para uso com Inertia:
+            // return redirect()->route('purchase-installments.index')->with('success', 'Parcela excluída com sucesso!');
+
+            return response()->json(['message' => 'Parcela excluída com sucesso!']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erro ao excluir a parcela: ' . $e->getMessage());
+
+            return response()->json(['message' => 'Erro ao excluir a parcela. Tente novamente mais tarde.'], 500);
+        }
     }
 }

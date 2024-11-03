@@ -4,63 +4,41 @@ namespace App\Policies;
 
 use App\Models\PurchaseInstallment;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class PurchaseInstallmentPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
     public function viewAny(User $user): bool
     {
-        //
+        return true;
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, PurchaseInstallment $purchaseInstallment): bool
+    public function view(User $user, PurchaseInstallment $installment): bool
     {
-        //
+        return $user->id === $installment->creditCardPurchase->creditCard->user_id;
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
     {
-        //
+        return true;
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, PurchaseInstallment $purchaseInstallment): bool
+    public function update(User $user, PurchaseInstallment $installment): bool
     {
-        //
+        return $user->id === $installment->creditCardPurchase->creditCard->user_id;
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, PurchaseInstallment $purchaseInstallment): bool
+    public function delete(User $user, PurchaseInstallment $installment): bool
     {
-        //
+        return $user->id === $installment->creditCardPurchase->creditCard->user_id;
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, PurchaseInstallment $purchaseInstallment): bool
+    public function restore(User $user, PurchaseInstallment $installment): bool
     {
-        //
+        return $user->id === $installment->creditCardPurchase->creditCard->user_id;
     }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, PurchaseInstallment $purchaseInstallment): bool
+    public function forceDelete(User $user, PurchaseInstallment $installment): bool
     {
-        //
+        return $user->id === $installment->creditCardPurchase->creditCard->user_id;
     }
 }

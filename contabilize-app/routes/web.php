@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccountPayableController;
 use App\Http\Controllers\AccountReceivableController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CreditCardController;
 use App\Http\Controllers\CreditCardPurchaseController;
@@ -10,8 +11,11 @@ use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/dashboard');
 });
+
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
 
 Route::middleware(['auth'])->group(function () {
     // Rotas para contas a pagar e receber
@@ -32,6 +36,9 @@ Route::middleware(['auth'])->group(function () {
         ->only(['show', 'destroy']);
 
     //Rotas de relatório
-    Route::get('/financial-report', [ReportController::class, 'index']);
-    Route::get('/financial-report/pdf', [ReportController::class, 'downloadPdf']);
+    Route::get('/dashboard', [ReportController::class, 'index']);
+    Route::get('/dashboard/pdf', [ReportController::class, 'downloadPdf']);
+
+    // Rota para logout
+    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 });

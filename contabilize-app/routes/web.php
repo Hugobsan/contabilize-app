@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CreditCardController;
 use App\Http\Controllers\CreditCardPurchaseController;
 use App\Http\Controllers\PurchaseInstallmentController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -29,4 +30,8 @@ Route::middleware(['auth'])->group(function () {
     // Rotas para o módulo de parcelas (apenas visualização e exclusão)
     Route::resource('purchase-installments', PurchaseInstallmentController::class)
         ->only(['show', 'destroy']);
+
+    //Rotas de relatório
+    Route::get('/financial-report', [ReportController::class, 'index']);
+    Route::get('/financial-report/pdf', [ReportController::class, 'downloadPdf']);
 });

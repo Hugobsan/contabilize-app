@@ -23,7 +23,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('accounts-receivable', AccountReceivableController::class);
 
     // Rota para categorias
-    Route::get('/categories', [CategoryController::class, 'getCategories']);
+    Route::get('/categories', [CategoryController::class, 'getCategories'])->name('get-categories');
 
     // Rotas para o módulo de cartões de crédito (CRUD completo)
     Route::resource('credit-cards', CreditCardController::class);

@@ -30,12 +30,11 @@ class ReportController extends Controller
 
         $reportData = [
             'monthlyExpenses' => $this->financialReportService->getMonthlyExpensesByCategory($userId, $year, $month),
-            'balance' => $this->financialReportService->getBalanceBetweenAccounts($userId),
-            'transactions' => $this->financialReportService->getCreditCardTransactions($userId, $year, $month),
-            'balanceEvolution' => $this->financialReportService->getBalanceEvolution($userId, $startDate, $endDate),
+            // 'balance' => $this->financialReportService->getBalanceBetweenAccounts($userId),
+            // 'transactions' => $this->financialReportService->getCreditCardTransactions($userId, $year, $month),
+            // 'balanceEvolution' => $this->financialReportService->getBalanceEvolution($userId, $startDate, $endDate),
         ];
 
-        //dd("Aqui"); //Chegou até aqui
         return Inertia::render('Dashboard', [
             'reportData' => $reportData,
         ]);

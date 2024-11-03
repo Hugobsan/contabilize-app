@@ -1,6 +1,13 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
-import Welcome from '@/Components/Welcome.vue';
+import MonthlyExpensesChart from '@/Components/Widgets/MonthlyExpensesChart.vue';
+// import BalanceWidget from '@/Components/Widgets/BalanceWidget.vue';
+// import CreditCardTransactionsTable from '@/Components/Widgets/CreditCardTransactionsTable.vue';
+// import BalanceEvolutionChart from '@/Components/Widgets/BalanceEvolutionChart.vue';
+
+const props = defineProps({
+    reportData: Object,
+});
 </script>
 
 <template>
@@ -12,10 +19,11 @@ import Welcome from '@/Components/Welcome.vue';
         </template>
 
         <div class="py-12">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                    aaaaaa
-                </div>
+            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <MonthlyExpensesChart :data="reportData.monthlyExpenses" />
+                <!-- <BalanceWidget :payableBalance="reportData.balance.totalPayable" :receivableBalance="reportData.balance.totalReceivable" /> -->
+                <!-- <CreditCardTransactionsTable :transactions="reportData.transactions" /> -->
+                <!-- <BalanceEvolutionChart :evolutionData="reportData.balanceEvolution" /> -->
             </div>
         </div>
     </AppLayout>

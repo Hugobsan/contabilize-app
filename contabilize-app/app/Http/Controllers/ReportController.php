@@ -30,7 +30,7 @@ class ReportController extends Controller
         $reportData = [
             'monthlyExpenses' => $this->financialReportService->getMonthlyExpensesByCategory($userId, $year, $month),
             'balance' => $this->financialReportService->getBalanceBetweenAccounts($userId),
-            // 'transactions' => $this->financialReportService->getCreditCardTransactions($userId, $year, $month),
+            'transactions' => $this->financialReportService->getCreditCardTransactions($userId, $year, $month),
             'balanceEvolution' => $this->financialReportService->getBalanceEvolution($userId, $startDate, $endDate),
         ];
 

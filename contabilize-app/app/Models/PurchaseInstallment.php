@@ -35,6 +35,14 @@ class PurchaseInstallment extends Model
     }
 
     /**
+     * Relacionamento com o usuário.
+     */
+    public function user()
+    {
+        return $this->creditCardPurchase->creditCard->user;
+    }
+
+    /**
      * Accessor para formatar a descrição da parcela.
      */
     public function getFormattedDescriptionAttribute()

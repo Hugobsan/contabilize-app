@@ -13,7 +13,7 @@ class CreditCardFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
+            'user_id' => User::inRandomOrder()->first()->id,
             'nickname' => $this->faker->word,
             'credit_limit' => $this->faker->randomFloat(2, 1000, 10000),
             'available_limit' => $this->faker->randomFloat(2, 500, 10000),

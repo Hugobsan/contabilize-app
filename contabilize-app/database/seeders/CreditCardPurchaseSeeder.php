@@ -2,18 +2,33 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
+use App\Models\CreditCard;
 use App\Models\CreditCardPurchase;
+use Illuminate\Database\Seeder;
 
 class CreditCardPurchaseSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function run()
     {
-        // Cria 30 compras associadas a cartões de crédito existentes
-        CreditCardPurchase::factory()->count(30)->create();
+        $creditCards = CreditCard::all();
+
+        foreach ($creditCards as $creditCard) {
+            $availableLimit = $creditCard->available_limit;
+
+            while ($availableLimit > 0) {
+                $purchaseAmount = rand(100, 1000);
+
+                if ($purchaseAmount <= $availableLimit) {
+                    CreditCardPurchase::factory()->create([
+                        'credit_card_id' => $creditCard->id,
+                        'amount' => $purchaseAmount,
+                    ]);
+
+                    $availableLimit -= $purchaseAmount;
+                } else {
+                    break;
+                }
+            }
+        }
     }
 }

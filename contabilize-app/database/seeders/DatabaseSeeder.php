@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
             AccountReceivableSeeder::class,
             CreditCardSeeder::class,
             CreditCardPurchaseSeeder::class,
-            PurchaseInstallmentSeeder::class,
+            // PurchaseInstallmentSeeder::class,
         ]);
     }
 }

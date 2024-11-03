@@ -62,7 +62,7 @@ class FinancialReportService
     {
         $query = CreditCardPurchase::whereHas('creditCard', function ($q) use ($userId) {
             $q->where('user_id', $userId);
-        });
+        })->with('creditCard');
 
         if ($year && $month) {
             $query->whereYear('purchase_date', $year)
@@ -138,5 +138,16 @@ class FinancialReportService
             'totalReceivable' => $totalReceivable,
             'balance' => $totalReceivable - $totalPayable,
         ];
+    }
+
+    public function getMonthlyReceivesByCategory($userId, $year, $month)
+    {
+        return AccountReceivable::where('user_id', $userId)
+            ->whereYear('due_date', $year)
+            ->whereMonth('due_date', $month)
+            ->select('category', DB::raw('SUM(value) as total'))
+            ->groupBy('category')
+            ->orderBy('total', 'desc')
+            ->get();
     }
 }

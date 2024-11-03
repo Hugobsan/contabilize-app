@@ -52,17 +52,18 @@ class ReportController extends Controller
         $userId = Auth::id();
         $year = $request->input('year', now()->year);
         $month = $request->input('month', now()->month);
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
+        $startDate = $request->input('start_date', now()->startOfMonth());
+        $endDate = $request->input('end_date', now()->endOfMonth());
 
         $reportData = [
             'monthlyExpenses' => $this->financialReportService->getMonthlyExpensesByCategory($userId, $year, $month),
+            'monthlyRecives' => $this->financialReportService->getMonthlyReceivesByCategory($userId, $year, $month),
             'balance' => $this->financialReportService->getBalanceBetweenAccounts($userId),
             'transactions' => $this->financialReportService->getCreditCardTransactions($userId, $year, $month),
             'balanceEvolution' => $this->financialReportService->getBalanceEvolution($userId, $startDate, $endDate),
         ];
 
-        $pdf = Pdf::loadView('reports.financial_report', $reportData);
+        $pdf = Pdf::loadView('reports.financial_report', compact('reportData', 'startDate', 'endDate'));
 
         return $pdf->download('relatorio-financeiro.pdf');
     }

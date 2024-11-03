@@ -1,5 +1,6 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
+import {Link} from '@inertiajs/vue3';
 import MonthlyExpensesChart from '@/Components/Widgets/MonthlyExpensesChart.vue';
 import MonthlyExpensesTable from '@/Components/Widgets/MonthlyExpensesTable.vue';
 import BalanceWidget from '@/Components/Widgets/BalanceWidget.vue';
@@ -35,9 +36,13 @@ const formatTransactionsData = (transactions) => {
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Dashboard
             </h2>
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                Exportar Relatório
-            </button>
+            <!-- <Link :href="route('dashboard.pdf')"> -->
+                <a :href="route('dashboard.pdf')">
+                <div class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer" @submit.prevent="logout">
+                    Exportar Relatório
+                </div>
+                </a>
+            <!-- </Link> -->
         </div>
         </template>
         <div class="py-2">

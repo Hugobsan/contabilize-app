@@ -73,7 +73,7 @@ const logout = () => {
                 <!-- Responsive Navigation Menu -->
                 <div :class="{ 'block': showingNavigationDropdown, 'hidden': !showingNavigationDropdown }" class="sm:hidden">
                     <div class="pt-2 pb-3 space-y-1">
-                        <!-- <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
+                        <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('accounts-payable.index')" :active="route().current('accounts-payable.index')">
@@ -84,7 +84,7 @@ const logout = () => {
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('credit-cards.index')" :active="route().current('credit-cards.index')">
                             Cartões
-                        </ResponsiveNavLink> -->
+                        </ResponsiveNavLink>
                     </div>
 
                     <!-- Responsive Settings Options -->

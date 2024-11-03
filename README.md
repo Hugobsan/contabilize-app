@@ -7,6 +7,7 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
+
 ## Descrição
 
 O **Comercialize - Sistema de Gestão de Contas Domésticas** é uma aplicação desenvolvida para auxiliar os usuários a gerenciar suas finanças pessoais de forma eficiente. O sistema permite o controle de contas a pagar e a receber, o registro de compras feitas com cartão de crédito, a visualização de relatórios financeiros detalhados e o controle de acesso seguro por meio de autenticação de usuários.

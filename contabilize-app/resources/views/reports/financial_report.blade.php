@@ -77,7 +77,7 @@
             <tbody>
                 @foreach ($monthlyExpenses as $expense)
                     <tr>
-                        <td>{{ $expense->category }}</td>
+                        <td>{{ $expense->category->label() }}</td>
                         <td>R$ {{ number_format($expense->total, 2, ',', '.') }}</td>
                     </tr>
                 @endforeach
@@ -97,7 +97,7 @@
             <tbody>
                 @foreach ($monthlyRecives as $income)
                     <tr>
-                        <td>{{ $income->category }}</td>
+                        <td>{{ $income->category->label() }}</td>
                         <td>R$ {{ number_format($income->total, 2, ',', '.') }}</td>
                     </tr>
                 @endforeach

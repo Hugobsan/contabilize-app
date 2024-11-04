@@ -27,6 +27,8 @@ const formatTransactionsData = (transactions) => {
 
     return newTrans;
 };
+
+const formattedTransactions = formatTransactionsData(props.reportData.transactions);
 </script>
 
 <template>
@@ -36,12 +38,8 @@ const formatTransactionsData = (transactions) => {
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Dashboard
             </h2>
-            <v-btn icon>
-    <v-icon>mdi-pencil</v-icon>
-</v-btn>
-
             <a :href="route('dashboard.pdf')">
-                <div class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer" @submit.prevent="logout">
+                <div class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer">
                     Exportar Relatório
                 </div>
             </a>
@@ -61,7 +59,7 @@ const formatTransactionsData = (transactions) => {
 
             <div class="max-w-7xl mx-auto my-5 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-6 h-50">
                 <TimeSeriesChart :title="'Evolução do Saldo ao Longo do Tempo'" :data="reportData.balanceEvolution" />
-                <CreditCardTransactionsTable :transactions="formatTransactionsData(reportData.transactions)" />
+                <CreditCardTransactionsTable :data="formattedTransactions" />
             </div>
         </div>
 

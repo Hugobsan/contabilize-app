@@ -17,7 +17,7 @@ class AccountPayableController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(AccountPayable::class, 'accountPayable');
+        // $this->authorizeResource(AccountPayable::class, 'accountPayable');
     }
     /**
      * Display a listing of the resource.
@@ -56,7 +56,7 @@ class AccountPayableController extends Controller
 
             DB::commit();
 
-            return redirect()->route('accounts.index')->with('success', 'Conta a pagar criada com sucesso!');
+            return back()->with('success', 'Conta a pagar criada com sucesso!');
 
             // return response()->json(['message' => 'Conta a pagar criada com sucesso!', 'account' => $accountPayable]);
         } catch (Exception $e) {
@@ -64,7 +64,7 @@ class AccountPayableController extends Controller
 
             Log::error('Erro ao criar a conta a pagar: ' . $e->getMessage());
 
-            return redirect ()->route('accounts.index')->with('error', 'Erro ao criar a conta a pagar. Tente novamente mais tarde.');
+            return back()->with('error', 'Erro ao criar a conta a pagar. Tente novamente mais tarde.');
             // return response()->json(['message' => 'Erro ao criar a conta a pagar. Tente novamente mais tarde.'], 500);
         }
     }
@@ -96,7 +96,6 @@ class AccountPayableController extends Controller
      */
     public function update(UpdateAccountPayableRequest $request, AccountPayable $accountPayable)
     {
-        dd("Controller");
         DB::beginTransaction();
 
         try {

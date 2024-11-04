@@ -26,7 +26,7 @@ class StoreAccountPayableRequest extends FormRequest
             'value' => 'required|numeric|min:0',
             'due_date' => 'required|date|after:today',
             'status' => 'required|boolean',
-            'category' => 'nullable|string|in:' . implode(',', \App\Enums\CategoryEnum::cases()),
+            'category' => 'nullable|string|in:' . implode(',', array_map(fn($e) => $e->value, \App\Enums\CategoryEnum::cases())),
         ];
     }
 

@@ -22,11 +22,11 @@ class UpdateAccountReceivableRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'description' => 'required|string|max:255',
-            'value' => 'required|numeric|min:0',
-            'due_date' => 'required|date|after_or_equal:today',
+            'description' => 'nullable|string|max:255',
+            'value' => 'nullable|numeric|min:0',
+            'due_date' => 'nullable|date|after_or_equal:today',
             'next_due_date' => 'nullable|date|after:due_date',
-            'status' => 'required|boolean',
+            'status' => 'nullable|boolean',
             'category' => 'nullable|in:' . implode(',', array_map(fn($e) => $e->value, \App\Enums\ReceivableCategoryEnum::cases())),
             'recurrence_period' => 'nullable|in:' . implode(',', array_map(fn($e) => $e->value, \App\Enums\RecurrencePeriodEnum::cases())),
         ];

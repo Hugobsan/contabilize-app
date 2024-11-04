@@ -22,10 +22,10 @@ class UpdateAccountPayableRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'description' => 'sometimes|required|string|max:255',
-            'value' => 'sometimes|required|numeric|min:0',
-            'due_date' => 'sometimes|required|date|after:today',
-            'status' => 'sometimes|required|boolean',
+            'description' => 'sometimes|nullable|string|max:255',
+            'value' => 'sometimes|nullable|numeric|min:0',
+            'due_date' => 'sometimes|nullable|date|after:today',
+            'status' => 'sometimes|nullable|boolean',
             'category' => 'nullable|string|in:' . implode(',', array_map(fn($e) => $e->value, \App\Enums\CategoryEnum::cases())),
         ];
     }

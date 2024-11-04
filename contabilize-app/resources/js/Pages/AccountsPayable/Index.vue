@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from "vue";
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from "@inertiajs/vue3";
 import axios from "axios";
 import {
     VCard,
@@ -22,22 +22,21 @@ const modalVisible = ref(false);
 const isEditing = ref(false);
 const selectedAccount = ref(null);
 
-const updateForm = useForm({
-    description: "",
-    value: "",
-    due_date: "",
-    status: "",
-    category: "",
-    _method: "put",
-    _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-});
-
 const form = reactive({
     description: "",
     value: "",
     due_date: "",
     status: "",
     category: "",
+});
+
+const updateForm = useForm({
+    ...form,
+    _method: "put",
+});
+
+const createForm = useForm({
+    ...form,
 });
 
 const categories = ref([]);
@@ -77,6 +76,7 @@ const formattedAccountsPayable = computed(() => {
                 (category) => category.value === account.category
             )?.label || account.category,
         value: `R$ ${parseFloat(account.value).toFixed(2).replace(".", ",")}`,
+        due_date: new Date(account.due_date).toLocaleDateString("pt-BR"),
     }));
 });
 
@@ -108,30 +108,53 @@ const resetForm = () => {
 
 const submitForm = () => {
     if (isEditing.value) {
-        updateForm.put(route("accounts-payable.update", selectedAccount.value.id), {
-            data: form,
+        updateForm.description = form.description;
+        updateForm.value = form.value;
+        updateForm.due_date = form.due_date;
+        updateForm.status = form.status;
+        updateForm.category = form.category;
+
+        updateForm.put(
+            route("accounts-payable.update", selectedAccount.value.id),
+            {
+                data: form,
+                onSuccess: () => {
+                    modalVisible.value = false;
+                    resetForm();
+                },
+                onError: (response) => {
+                    console.error("Erro ao criar conta a pagar:", response);
+                },
+            }
+        );
+    } else {
+        createForm.description = form.description;
+        createForm.value = form.value;
+        createForm.due_date = form.due_date;
+        createForm.status = form.status;
+        createForm.category = form.category;
+
+        createForm.post(route("accounts-payable.store"), {
             onSuccess: () => {
                 modalVisible.value = false;
                 resetForm();
             },
-        });
-    } else {
-        updateForm.post(route("accounts-payable.store"), {
-            data: form,
-            onSuccess: () => {
-                modalVisible.value = false;
-                resetForm();
+            onError: (response) => {
+                console.error("Erro ao criar conta a pagar:", response);
             },
         });
     }
 };
 
 const deleteAccount = (accountId) => {
-    if (confirm('Tem certeza que deseja excluir esta conta?')) {
-        updateForm.delete(route("accounts-payable.destroy", accountId), {
+    if (confirm("Tem certeza que deseja excluir esta conta?")) {
+        createForm.delete(route("accounts-payable.destroy", accountId), {
+            data: { _method: "delete" },
             onSuccess: () => {
-                accountsPayable.value = accountsPayable.value.filter(acc => acc.id !== accountId);
-            }
+                accountsPayable.value = accountsPayable.value.filter(
+                    (acc) => acc.id !== accountId
+                );
+            },
         });
     }
 };
@@ -146,6 +169,10 @@ const markAsPaid = (account) => {
             if (index !== -1) {
                 accountsPayable.value[index].status = "Paga";
             }
+        },
+        onError: (response) => {
+            alert("Erro ao marcar conta como paga");
+            console.error("Erro ao marcar conta como paga:", response);
         },
     });
 };

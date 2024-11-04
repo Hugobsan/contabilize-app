@@ -10,25 +10,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class CreditCardController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(CreditCard::class, 'creditCard');
+        // $this->authorizeResource(CreditCard::class, 'creditCard');
     }
 
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
-        $cards = CreditCard::where('user_id', Auth::id())->get();
+        $creditCards = CreditCard::where('user_id', Auth::id())->get();
 
-        // Comentário para uso com Inertia:
-        // return Inertia::render('CreditCards/Index', ['cards' => $cards]);
-
-        return response()->json($cards);
+        return Inertia::render('CreditCards/Index', ['creditCards' => $creditCards]);
     }
 
     /**
@@ -45,7 +43,7 @@ class CreditCardController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCreditCardRequest $request): JsonResponse
+    public function store(StoreCreditCardRequest $request)
     {
         DB::beginTransaction();
         try {
@@ -54,26 +52,27 @@ class CreditCardController extends Controller
             DB::commit();
 
             // Comentário para uso com Inertia:
-            // return redirect()->route('credit-cards.index')->with('success', 'Cartão de crédito criado com sucesso!');
-
-            return response()->json(['message' => 'Cartão de crédito criado com sucesso!', 'card' => $creditCard]);
+            return back()->with('success', 'Cartão de crédito criado com sucesso!');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Erro ao criar o cartão de crédito: ' . $e->getMessage());
 
-            return response()->json(['message' => 'Erro ao criar o cartão de crédito. Tente novamente mais tarde.'], 500);
+            return back()->with('error', 'Erro ao criar o cartão de crédito. Tente novamente mais tarde.');
         }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(CreditCard $creditCard): JsonResponse
+    public function show(CreditCard $creditCard)
     {
+        if(auth()->user()->cant('view', $creditCard)) {
+            return back()->with('error', 'Você não tem permissão para visualizar este cartão de crédito.');
+        }
+        // Pré-carregar relação de compras com cartão de crédito
+        $creditCard->load('purchases.installments');
         // Comentário para uso com Inertia:
-        // return Inertia::render('CreditCards/Show', ['card' => $creditCard]);
-
-        return response()->json($creditCard);
+        return Inertia::render('CreditCards/Show', ['card' => $creditCard]);
     }
 
     /**
@@ -90,7 +89,7 @@ class CreditCardController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCreditCardRequest $request, CreditCard $creditCard): JsonResponse
+    public function update(UpdateCreditCardRequest $request, CreditCard $creditCard)
     {
         DB::beginTransaction();
         try {
@@ -99,21 +98,19 @@ class CreditCardController extends Controller
             DB::commit();
 
             // Comentário para uso com Inertia:
-            // return redirect()->route('credit-cards.index')->with('success', 'Cartão de crédito atualizado com sucesso!');
-
-            return response()->json(['message' => 'Cartão de crédito atualizado com sucesso!', 'card' => $creditCard]);
+            return back()->with('success', 'Cartão de crédito atualizado com sucesso!');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Erro ao atualizar o cartão de crédito: ' . $e->getMessage());
 
-            return response()->json(['message' => 'Erro ao atualizar o cartão de crédito. Tente novamente mais tarde.'], 500);
+            return back()->with('error', 'Erro ao atualizar o cartão de crédito. Tente novamente mais tarde.');
         }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CreditCard $creditCard): JsonResponse
+    public function destroy(CreditCard $creditCard)
     {
         DB::beginTransaction();
         try {
@@ -121,14 +118,12 @@ class CreditCardController extends Controller
             DB::commit();
 
             // Comentário para uso com Inertia:
-            // return redirect()->route('credit-cards.index')->with('success', 'Cartão de crédito excluído com sucesso!');
-
-            return response()->json(['message' => 'Cartão de crédito excluído com sucesso!']);
+            return redirect()->route('credit-cards.index')->with('success', 'Cartão de crédito excluído com sucesso!');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Erro ao excluir o cartão de crédito: ' . $e->getMessage());
 
-            return response()->json(['message' => 'Erro ao excluir o cartão de crédito. Tente novamente mais tarde.'], 500);
+            return back()->with('error', 'Erro ao excluir o cartão de crédito. Tente novamente mais tarde.');
         }
     }
 }

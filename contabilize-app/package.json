@@ -20,6 +20,8 @@
         "vue": "^3.3.13"
     },
     "dependencies": {
+        "@jamescoyle/vue-icon": "^0.1.2",
+        "@mdi/js": "^7.4.47",
         "chart.js": "^4.4.6",
         "chartjs-adapter-date-fns": "^3.0.0",
         "toastr": "^2.1.4",

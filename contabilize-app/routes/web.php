@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CreditCardController;
 use App\Http\Controllers\CreditCardPurchaseController;
+use App\Http\Controllers\EnumsController;
 use App\Http\Controllers\PurchaseInstallmentController;
 use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,8 @@ Route::middleware(['auth'])->group(function () {
 
     // Rota para categorias
     Route::get('/categories', [CategoryController::class, 'getCategories'])->name('get-categories');
+
+    Route::get('/enums/{enum}', [EnumsController::class, 'getEnumLabels'])->name('get-enum-labels');
 
     // Rotas para o módulo de cartões de crédito (CRUD completo)
     Route::resource('credit-cards', CreditCardController::class);

@@ -36,13 +36,15 @@ const formatTransactionsData = (transactions) => {
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Dashboard
             </h2>
-            <!-- <Link :href="route('dashboard.pdf')"> -->
-                <a :href="route('dashboard.pdf')">
+            <v-btn icon>
+    <v-icon>mdi-pencil</v-icon>
+</v-btn>
+
+            <a :href="route('dashboard.pdf')">
                 <div class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded hover:cursor-pointer" @submit.prevent="logout">
                     Exportar Relatório
                 </div>
-                </a>
-            <!-- </Link> -->
+            </a>
         </div>
         </template>
         <div class="py-2">

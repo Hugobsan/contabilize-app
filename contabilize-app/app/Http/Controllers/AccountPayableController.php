@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class AccountPayableController extends Controller
 {
@@ -21,23 +22,20 @@ class AccountPayableController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
         $filters = $request->only(['search', 'category', 'status']);
         $accounts = AccountPayable::where('user_id', Auth::id())
             ->filter($filters)
             ->get();
 
-        // Comentário para uso com Inertia:
-        // return Inertia::render('AccountsPayable/Index', ['accounts' => $accounts]);
-
-        return response()->json($accounts);
+        return Inertia::render('AccountsPayable/Index', ['accounts' => $accounts]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): JsonResponse
+    public function create()
     {
         // Comentário para uso com Inertia:
         // return Inertia::render('AccountsPayable/Create');
@@ -48,7 +46,7 @@ class AccountPayableController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreAccountPayableRequest $request): JsonResponse
+    public function store(StoreAccountPayableRequest $request)
     {
         DB::beginTransaction();
 
@@ -58,15 +56,16 @@ class AccountPayableController extends Controller
 
             DB::commit();
 
-            // return redirect()->route('accounts.index')->with('success', 'Conta a pagar criada com sucesso!');
+            return redirect()->route('accounts.index')->with('success', 'Conta a pagar criada com sucesso!');
 
-            return response()->json(['message' => 'Conta a pagar criada com sucesso!', 'account' => $accountPayable]);
+            // return response()->json(['message' => 'Conta a pagar criada com sucesso!', 'account' => $accountPayable]);
         } catch (Exception $e) {
             DB::rollBack();
 
             Log::error('Erro ao criar a conta a pagar: ' . $e->getMessage());
 
-            return response()->json(['message' => 'Erro ao criar a conta a pagar. Tente novamente mais tarde.'], 500);
+            return redirect ()->route('accounts.index')->with('error', 'Erro ao criar a conta a pagar. Tente novamente mais tarde.');
+            // return response()->json(['message' => 'Erro ao criar a conta a pagar. Tente novamente mais tarde.'], 500);
         }
     }
 
@@ -95,8 +94,9 @@ class AccountPayableController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateAccountPayableRequest $request, AccountPayable $accountPayable): JsonResponse
+    public function update(UpdateAccountPayableRequest $request, AccountPayable $accountPayable)
     {
+        dd("Controller");
         DB::beginTransaction();
 
         try {
@@ -105,21 +105,21 @@ class AccountPayableController extends Controller
             DB::commit();
 
             // Comentário para uso com Inertia:
-            // return redirect()->route('accounts.index')->with('success', 'Conta a pagar atualizada com sucesso!');
+            return redirect()->back()->with('success', 'Conta a pagar atualizada com sucesso!');
 
-            return response()->json(['message' => 'Conta a pagar atualizada com sucesso!', 'account' => $accountPayable]);
+            // return response()->json(['message' => 'Conta a pagar atualizada com sucesso!', 'account' => $accountPayable]);
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Erro ao atualizar a conta a pagar: ' . $e->getMessage());
 
-            return response()->json(['message' => 'Erro ao atualizar a conta a pagar. Tente novamente mais tarde.'], 500);
+            return redirect()->back()->with('error', 'Erro ao atualizar a conta a pagar. Tente novamente mais tarde.');
         }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(AccountPayable $accountPayable): JsonResponse
+    public function destroy(AccountPayable $accountPayable)
     {
         DB::beginTransaction();
         try {
@@ -127,14 +127,14 @@ class AccountPayableController extends Controller
             DB::commit();
 
             // Comentário para uso com Inertia:
-            // return redirect()->route('accounts.index')->with('success', 'Conta a pagar excluída com sucesso!');
+            return redirect()->route('accounts-payable.index')->with('success', 'Conta a pagar excluída com sucesso!');
 
-            return response()->json(['message' => 'Conta a pagar excluída com sucesso!']);
+            // return response()->json(['message' => 'Conta a pagar excluída com sucesso!']);
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Erro ao excluir a conta a pagar: ' . $e->getMessage());
 
-            return response()->json(['message' => 'Erro ao excluir a conta a pagar. Tente novamente mais tarde.'], 500);
+            return redirect()->back()->with('error', 'Erro ao excluir a conta a pagar. Tente novamente mais tarde.');
         }
     }
 }

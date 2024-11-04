@@ -39,7 +39,8 @@ class AccountPayablePolicy
      * Determine whether the user can update the model.
      */
     public function update(User $user, AccountPayable $accountPayable): bool
-    {
+    {   
+        dd("policy");
         // Permite que o usuário atualize apenas suas próprias contas
         return $user->id === $accountPayable->user_id;
     }

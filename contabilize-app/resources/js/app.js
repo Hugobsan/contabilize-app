@@ -16,6 +16,8 @@ import * as directives from 'vuetify/directives';
 import toastr from 'toastr';
 import 'toastr/build/toastr.min.css'; // Importa estilos do Toastr
 
+const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
 const vuetify = createVuetify({
     components,
     directives,

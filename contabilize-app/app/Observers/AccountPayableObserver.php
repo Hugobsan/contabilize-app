@@ -37,8 +37,6 @@ class AccountPayableObserver
     public function updated(AccountPayable $accountPayable): void
     {
         if ($accountPayable->isDirty('status') && $accountPayable->status === StatusEnum::PAID) {
-            DB::beginTransaction();
-
             try {
                 // Buscar o job que contém o ID da conta a pagar
                 $job = DB::table('jobs')
@@ -57,14 +55,9 @@ class AccountPayableObserver
                     // Apagar o job da tabela `jobs`
                     DB::table('jobs')->where('id', $job->id)->delete();
                 }
-
-                DB::commit();
             } catch (Exception $e) {
-                DB::rollBack();
-
                 Log::error('Erro ao mover job para failed_jobs: ' . $e->getMessage());
-
-                // throw $e;
+                // throw $e; // Opcional
             }
         }
     }
@@ -74,8 +67,6 @@ class AccountPayableObserver
      */
     public function deleted(AccountPayable $accountPayable): void
     {
-        DB::beginTransaction();
-
         try {
             // Buscar o job que contém o ID da conta a pagar
             $job = DB::table('jobs')
@@ -95,14 +86,9 @@ class AccountPayableObserver
                 // Apagar o job da tabela `jobs`
                 DB::table('jobs')->where('id', $job->id)->delete();
             }
-
-            DB::commit();
         } catch (Exception $e) {
-            DB::rollBack();
-
             Log::error('Erro ao mover job para failed_jobs após exclusão: ' . $e->getMessage());
-
-            // throw $e;
+            // throw $e; // Opcional
         }
     }
 
@@ -111,7 +97,7 @@ class AccountPayableObserver
      */
     public function restored(AccountPayable $accountPayable): void
     {
-        //
+        // Implementação para o evento "restored", se necessário
     }
 
     /**
@@ -119,6 +105,6 @@ class AccountPayableObserver
      */
     public function forceDeleted(AccountPayable $accountPayable): void
     {
-        //
+        // Implementação para o evento "force deleted", se necessário
     }
 }

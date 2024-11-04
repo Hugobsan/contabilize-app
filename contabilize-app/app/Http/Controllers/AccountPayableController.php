@@ -7,7 +7,6 @@ use App\Http\Requests\StoreAccountPayableRequest;
 use App\Http\Requests\UpdateAccountPayableRequest;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -15,15 +14,24 @@ use Inertia\Inertia;
 
 class AccountPayableController extends Controller
 {
-    public function __construct()
+    /**
+     * Verifica se o usuário autenticado tem permissão para acessar a rota
+     * 
+     * @param string $function Nome da permissão a ser verificada
+     */
+    protected function authorizeMe($permission, $accountPayable = AccountPayable::class)
     {
-        // $this->authorizeResource(AccountPayable::class, 'accountPayable');
+        if (!auth()->user()->can($permission, $accountPayable)) {
+            return redirect()->back()->with('error', 'Você não tem permissão para acessar essa página.');
+        }
     }
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        $this->authorizeMe('viewAny');
+
         $filters = $request->only(['search', 'category', 'status']);
         $accounts = AccountPayable::where('user_id', Auth::id())
             ->filter($filters)
@@ -33,21 +41,12 @@ class AccountPayableController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        // Comentário para uso com Inertia:
-        // return Inertia::render('AccountsPayable/Create');
-
-        return response()->json(['message' => 'Form de criação de contas a pagar']);
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreAccountPayableRequest $request)
     {
+        $this->authorizeMe('create');
+
         DB::beginTransaction();
 
         try {
@@ -70,40 +69,20 @@ class AccountPayableController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(AccountPayable $accountPayable): JsonResponse
-    {
-        // Comentário para uso com Inertia:
-        // return Inertia::render('AccountsPayable/Show', ['account' => $accountPayable]);
-
-        return response()->json($accountPayable);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(AccountPayable $accountPayable): JsonResponse
-    {
-        // Comentário para uso com Inertia:
-        // return Inertia::render('AccountsPayable/Edit', ['account' => $accountPayable]);
-
-        return response()->json(['message' => 'Form de edição de contas a pagar', 'account' => $accountPayable]);
-    }
-
-    /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateAccountPayableRequest $request, AccountPayable $accountPayable)
+    public function update(UpdateAccountPayableRequest $request, $id)
     {
+        $accountPayable = AccountPayable::find($id);
+
+        $this->authorizeMe('update', $accountPayable);
+
         DB::beginTransaction();
 
         try {
-            $accountPayable->update($request->validated());
-
+            $update = $accountPayable->update($request->validated());
             DB::commit();
 
-            // Comentário para uso com Inertia:
             return redirect()->back()->with('success', 'Conta a pagar atualizada com sucesso!');
 
             // return response()->json(['message' => 'Conta a pagar atualizada com sucesso!', 'account' => $accountPayable]);
@@ -118,8 +97,12 @@ class AccountPayableController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(AccountPayable $accountPayable)
+    public function destroy($id)
     {
+        $accountPayable = AccountPayable::find($id);
+
+        $this->authorizeMe('delete', $accountPayable);
+
         DB::beginTransaction();
         try {
             $accountPayable->delete();

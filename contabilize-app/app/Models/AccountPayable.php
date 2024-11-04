@@ -10,8 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AccountPayable extends Model
 {
-    use SoftDeletes;
-    use HasFactory;
+    use SoftDeletes, HasFactory;
     protected $table = "accounts_payable";
 
     protected $fillable = [
@@ -20,7 +19,8 @@ class AccountPayable extends Model
         "value",
         "due_date",
         "status",
-        "category"
+        "category",
+        "deleted_at",
     ];
 
     protected $casts = [

@@ -14,7 +14,7 @@ import {
 } from "vuetify/components";
 import AppLayout from "@/Layouts/AppLayout.vue";
 
-// Props recebidas do backend
+
 const props = defineProps({ accounts: Array });
 
 const accountsPayable = ref(props.accounts);
@@ -22,21 +22,12 @@ const modalVisible = ref(false);
 const isEditing = ref(false);
 const selectedAccount = ref(null);
 
-const form = reactive({
+const form = useForm({
     description: "",
     value: "",
     due_date: "",
     status: "",
     category: "",
-});
-
-const updateForm = useForm({
-    ...form,
-    _method: "put",
-});
-
-const createForm = useForm({
-    ...form,
 });
 
 const categories = ref([]);
@@ -56,9 +47,6 @@ const fetchEnums = async () => {
             value: item.value,
             label: item.label,
         }));
-
-        console.log("Categories:", categories.value);
-        console.log("Statuses:", statuses.value);
     } catch (error) {
         console.error("Erro ao buscar enums:", error);
     }
@@ -89,10 +77,19 @@ const openCreateModal = () => {
 
 const openEditModal = (account) => {
     form.description = account.description;
-    form.value = account.value;
-    form.due_date = account.due_date;
-    form.status = account.status;
-    form.category = account.category;
+    let value = account.value.replace(",",".").replace(/[^\d,.-]/g, ""); 
+    form.value = parseFloat(value).toFixed(2);
+    form.due_date = account.due_date.split("/").reverse().join("-");
+
+    let formattedStatus = statuses.value.find(
+        (status) => status.label === account.status
+    );
+    form.status = formattedStatus.value;
+
+    let formattedCategory = categories.value.find(
+        (category) => category.label === account.category
+    );
+    form.category = formattedCategory.value;
     isEditing.value = true;
     selectedAccount.value = account;
     modalVisible.value = true;
@@ -108,13 +105,8 @@ const resetForm = () => {
 
 const submitForm = () => {
     if (isEditing.value) {
-        updateForm.description = form.description;
-        updateForm.value = form.value;
-        updateForm.due_date = form.due_date;
-        updateForm.status = form.status;
-        updateForm.category = form.category;
-
-        updateForm.put(
+        console.log(form);
+        form.put(
             route("accounts-payable.update", selectedAccount.value.id),
             {
                 data: form,
@@ -128,16 +120,11 @@ const submitForm = () => {
             }
         );
     } else {
-        createForm.description = form.description;
-        createForm.value = form.value;
-        createForm.due_date = form.due_date;
-        createForm.status = form.status;
-        createForm.category = form.category;
-
-        createForm.post(route("accounts-payable.store"), {
+        form.post(route("accounts-payable.store"), {
             onSuccess: () => {
                 modalVisible.value = false;
                 resetForm();
+
             },
             onError: (response) => {
                 console.error("Erro ao criar conta a pagar:", response);
@@ -146,10 +133,23 @@ const submitForm = () => {
     }
 };
 
+const deleteForm = (accountId) => {
+    if (confirm("Tem certeza que deseja excluir esta conta?")) {
+        form.delete(route("accounts-payable.destroy", accountId), {
+            data: { _method: "delete", id: accountId },
+            onSuccess: () => {
+                accountsPayable.value = accountsPayable.value.filter(
+                    (acc) => acc.id !== accountId
+                );
+            },
+        });
+    }
+};
+
 const deleteAccount = (accountId) => {
     if (confirm("Tem certeza que deseja excluir esta conta?")) {
-        createForm.delete(route("accounts-payable.destroy", accountId), {
-            data: { _method: "delete" },
+        form.delete(route("accounts-payable.destroy", accountId), {
+            data: { _method: "delete", id: accountId },
             onSuccess: () => {
                 accountsPayable.value = accountsPayable.value.filter(
                     (acc) => acc.id !== accountId
@@ -160,8 +160,10 @@ const deleteAccount = (accountId) => {
 };
 
 const markAsPaid = (account) => {
-    updateForm.post(route("accounts-payable.update", account.id), {
-        status: "Paga",
+    const patchForm =  useForm({
+        status: 1,
+    });
+    patchForm.put(route("accounts-payable.update", account.id), {
         onSuccess: () => {
             const index = accountsPayable.value.findIndex(
                 (acc) => acc.id === account.id

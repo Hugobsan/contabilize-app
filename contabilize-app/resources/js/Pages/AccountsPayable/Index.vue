@@ -13,6 +13,7 @@ import {
     VDataTable,
 } from "vuetify/components";
 import AppLayout from "@/Layouts/AppLayout.vue";
+import "@mdi/font/css/materialdesignicons.css";
 
 
 const props = defineProps({ accounts: Array });
@@ -210,7 +211,7 @@ onMounted(fetchEnums);
             <VCardText>
                 <VBtn
                     @click="openCreateModal"
-                    class="mb-4 bg-blue-500 hover:bg-blue-700 text-white"
+                    class="mb-4 bg-primary text-white"
                     >Nova Conta</VBtn
                 >
                 <VDataTable
@@ -238,14 +239,18 @@ onMounted(fetchEnums);
                             @click="openEditModal(item)"
                             class="mr-2"
                             title="Editar"
-                            >✏️</VBtn
+                            >
+                            <VIcon>mdi-pencil</VIcon>
+                            </VBtn
                         >
                         <VBtn
                             small
                             color="error"
                             @click="deleteAccount(item.id)"
                             title="Excluir"
-                            >🗑️</VBtn
+                            >
+                            <VIcon>mdi-delete</VIcon>
+                            </VBtn
                         >
                         <VBtn
                             v-if="item.status === 'Pendente'"
@@ -253,7 +258,9 @@ onMounted(fetchEnums);
                             color="success"
                             @click="markAsPaid(item)"
                             title="Marcar como Pago"
-                            >💸</VBtn
+                            >
+                            <VIcon>mdi-cash</VIcon>
+                            </VBtn
                         >
                     </template>
                 </VDataTable>

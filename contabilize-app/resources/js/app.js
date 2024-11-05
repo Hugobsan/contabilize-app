@@ -6,6 +6,7 @@ import { createInertiaApp } from "@inertiajs/vue3";
 import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 import { ZiggyVue } from "../../vendor/tightenco/ziggy";
 import { Ziggy } from "./ziggy";
+import '@mdi/font/css/materialdesignicons.css';
 
 import "vuetify/styles"; // Importa estilos do Vuetify
 import { createVuetify } from "vuetify";
@@ -13,17 +14,11 @@ import { aliases, mdi } from "vuetify/lib/iconsets/mdi"; // Usa ícones do Mater
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
 
-import Toastify from "toastify-js";
-import "toastify-js/src/toastify.css";
-
-const csrfToken = document
-    .querySelector('meta[name="csrf-token"]')
-    .getAttribute("content");
-
 const vuetify = createVuetify({
     components,
     directives,
     icons: {
+        iconfont: "mdi",
         defaultSet: "mdi",
         aliases,
         sets: {
@@ -57,63 +52,12 @@ createInertiaApp({
             .use(plugin)
             .use(vuetify) // Usa Vuetify
             .use(ZiggyVue, Ziggy)
+            .use()
             .mount(el);
-
-        // Exibe mensagens de sucesso e erro com Toastify
-        const flashMessages = props.initialPage.props.flash;
-        if (flashMessages) {
-            if (flashMessages.success) {
-                Toastify({
-                    text: flashMessages.success,
-                    duration: 5000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    backgroundColor: "#4CAF50", // Cor para mensagens de sucesso
-                    stopOnFocus: true,
-                }).showToast();
-            }
-
-            if (flashMessages.error) {
-                Toastify({
-                    text: flashMessages.error,
-                    duration: 5000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    backgroundColor: "#F44336", // Cor para mensagens de erro
-                    stopOnFocus: true,
-                }).showToast();
-            }
-
-            if (flashMessages.warning) {
-                Toastify({
-                    text: flashMessages.warning,
-                    duration: 5000,
-                    close: true,
-                    gravity: "top",
-                    position: "right",
-                    backgroundColor: "#FFC107", // Cor para mensagens de alerta
-                    stopOnFocus: true,
-                }).showToast();
-
-                if (flashMessages.info) {
-                    Toastify({
-                        text: flashMessages.info,
-                        duration: 5000,
-                        close: true,
-                        gravity: "top",
-                        position: "right",
-                        backgroundColor: "#2196F3", // Cor para mensagens de informação
-                        stopOnFocus: true,
-                    }).showToast();
-                }
-            }
-        }
-
+            // Something else...
         return vueApp;
     },
     progress: {
-        color: "#4B5563",
+        color: "#4CAF50",
     },
 });

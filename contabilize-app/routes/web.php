@@ -11,14 +11,14 @@ use App\Http\Controllers\PurchaseInstallmentController;
 use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect('/dashboard');
-});
-
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
 
 Route::middleware(['auth'])->group(function () {
+    Route::get('/', function () {
+        return redirect()->route('dashboard');
+    });
+    
     // Rotas para contas a pagar e receber
     Route::resource('accounts-payable', AccountPayableController::class);
     Route::resource('accounts-receivable', AccountReceivableController::class);

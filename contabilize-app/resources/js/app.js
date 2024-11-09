@@ -14,6 +14,9 @@ import { aliases, mdi } from "vuetify/lib/iconsets/mdi"; // Usa ícones do Mater
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
 
+import toastr from "toastr";
+import "toastr/build/toastr.min.css";
+
 const vuetify = createVuetify({
     components,
     directives,
@@ -50,12 +53,9 @@ createInertiaApp({
     setup({ el, App, props, plugin }) {
         const vueApp = createApp({ render: () => h(App, props) })
             .use(plugin)
-            .use(vuetify) // Usa Vuetify
+            .use(vuetify) 
             .use(ZiggyVue, Ziggy)
-            .use()
-            .mount(el);
-            // Something else...
-        return vueApp;
+        return vueApp.mount(el);
     },
     progress: {
         color: "#4CAF50",

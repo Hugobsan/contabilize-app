@@ -1,6 +1,6 @@
 <script setup>
-import { ref, reactive, computed, onMounted } from "vue";
-import { Head, Link, useForm } from "@inertiajs/vue3";
+import { ref, computed, onMounted } from "vue";
+import { useForm } from "@inertiajs/vue3";
 import axios from "axios";
 import {
     VCard,
@@ -14,7 +14,6 @@ import {
 } from "vuetify/components";
 import AppLayout from "@/Layouts/AppLayout.vue";
 import "@mdi/font/css/materialdesignicons.css";
-
 
 const props = defineProps({ accounts: Array });
 
@@ -78,8 +77,15 @@ const openCreateModal = () => {
 
 const openEditModal = (account) => {
     form.description = account.description;
-    let value = account.value.replace(",",".").replace(/[^\d,.-]/g, ""); 
+
+    // Corrige o formato do valor para número
+    let value = account.value
+        .replace("R$ ", "")
+        .replace(",", ".")
+        .replace(/[^\d.]/g, "");
     form.value = parseFloat(value).toFixed(2);
+
+    // Corrige o formato da data para "AAAA-MM-DD"
     form.due_date = account.due_date.split("/").reverse().join("-");
 
     let formattedStatus = statuses.value.find(
@@ -91,41 +97,53 @@ const openEditModal = (account) => {
         (category) => category.label === account.category
     );
     form.category = formattedCategory.value;
-    isEditing.value = true;
+    isEditing.value = account;
     selectedAccount.value = account;
     modalVisible.value = true;
 };
 
-const resetForm = () => {
-    form.description = "";
-    form.value = "";
-    form.due_date = "";
-    form.status = "";
-    form.category = "";
-};
-
 const submitForm = () => {
     if (isEditing.value) {
-        console.log(form);
-        form.put(
-            route("accounts-payable.update", selectedAccount.value.id),
-            {
-                data: form,
-                onSuccess: () => {
-                    modalVisible.value = false;
-                    resetForm();
-                },
-                onError: (response) => {
-                    console.error("Erro ao criar conta a pagar:", response);
-                },
-            }
-        );
+        form.put(route("accounts-payable.update", selectedAccount.value.id), {
+            data: form,
+            onSuccess: () => {
+                const index = accountsPayable.value.findIndex(
+                    (acc) => acc.id === isEditing.value.id
+                );
+                if (index !== -1) {
+                    // Atualize o item diretamente na tabela com os novos valores
+                    accountsPayable.value[index] = {
+                        ...accountsPayable.value[index],
+                        description: form.description,
+                        value: `R$ ${parseFloat(form.value)
+                            .toFixed(2)
+                            .replace(".", ",")}`, // Formate o valor
+                        due_date: new Date(form.due_date).toLocaleDateString(
+                            "pt-BR"
+                        ), // Formate a data
+                        status:
+                            statuses.value.find(
+                                (status) => status.value === form.status
+                            )?.label || form.status,
+                        category:
+                            categories.value.find(
+                                (category) => category.value === form.category
+                            )?.label || form.category,
+                    };
+                }
+
+                modalVisible.value = false;
+                resetForm();
+            },
+            onError: (response) => {
+                console.error("Erro ao editar conta a pagar:", response);
+            },
+        });
     } else {
         form.post(route("accounts-payable.store"), {
             onSuccess: () => {
                 modalVisible.value = false;
                 resetForm();
-
             },
             onError: (response) => {
                 console.error("Erro ao criar conta a pagar:", response);
@@ -134,17 +152,12 @@ const submitForm = () => {
     }
 };
 
-const deleteForm = (accountId) => {
-    if (confirm("Tem certeza que deseja excluir esta conta?")) {
-        form.delete(route("accounts-payable.destroy", accountId), {
-            data: { _method: "delete", id: accountId },
-            onSuccess: () => {
-                accountsPayable.value = accountsPayable.value.filter(
-                    (acc) => acc.id !== accountId
-                );
-            },
-        });
-    }
+const resetForm = () => {
+    form.description = "";
+    form.value = "";
+    form.due_date = "";
+    form.status = "";
+    form.category = "";
 };
 
 const deleteAccount = (accountId) => {
@@ -161,7 +174,7 @@ const deleteAccount = (accountId) => {
 };
 
 const markAsPaid = (account) => {
-    const patchForm =  useForm({
+    const patchForm = useForm({
         status: 1,
     });
     patchForm.put(route("accounts-payable.update", account.id), {
@@ -239,29 +252,26 @@ onMounted(fetchEnums);
                             @click="openEditModal(item)"
                             class="mr-2"
                             title="Editar"
-                            >
-                            <VIcon>mdi-pencil</VIcon>
-                            </VBtn
                         >
+                            <VIcon>mdi-pencil</VIcon>
+                        </VBtn>
                         <VBtn
                             small
                             color="error"
                             @click="deleteAccount(item.id)"
                             title="Excluir"
-                            >
-                            <VIcon>mdi-delete</VIcon>
-                            </VBtn
                         >
+                            <VIcon>mdi-delete</VIcon>
+                        </VBtn>
                         <VBtn
                             v-if="item.status === 'Pendente'"
                             small
                             color="success"
                             @click="markAsPaid(item)"
                             title="Marcar como Pago"
-                            >
-                            <VIcon>mdi-cash</VIcon>
-                            </VBtn
                         >
+                            <VIcon>mdi-cash</VIcon>
+                        </VBtn>
                     </template>
                 </VDataTable>
             </VCardText>

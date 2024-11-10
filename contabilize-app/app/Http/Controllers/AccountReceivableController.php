@@ -16,9 +16,16 @@ use Inertia\Inertia;
 
 class AccountReceivableController extends Controller
 {
-    public function __construct()
+    /**
+     * Verifica se o usuário autenticado tem permissão para acessar a rota
+     * 
+     * @param string $function Nome da permissão a ser verificada
+     */
+    protected function authorizeMe($permission, $accountPayable = AccountReceivable::class)
     {
-        $this->authorizeResource(AccountReceivable::class, 'accountReceivable');
+        if (!auth()->user()->can($permission, $accountPayable)) {
+            return redirect()->back()->with('error', 'Você não tem permissão para acessar essa página.');
+        }
     }
 
     /**
@@ -26,6 +33,8 @@ class AccountReceivableController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorizeMe('viewAny');
+
         $filters = $request->only(['search', 'category', 'status']);
         $accounts = AccountReceivable::where('user_id', Auth::id())
             ->filter($filters)
@@ -35,26 +44,17 @@ class AccountReceivableController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): JsonResponse
-    {
-        // Comentário para uso com Inertia:
-        // return Inertia::render('AccountsReceivable/Create');
-
-        return response()->json(['message' => 'Form de criação de contas a receber']);
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreAccountReceivableRequest $request)
     {
+        $this->authorizeMe('create');
+
         DB::beginTransaction();
 
         try {
             $accountReceivable = AccountReceivable::create($request->validated() + ['user_id' => Auth::id()]);
-            
+
             // Calculo do next_due_date
             $nextDueDate = $this->calculateNextDueDate($accountReceivable);
             $accountReceivable->update(['next_due_date' => $nextDueDate]);
@@ -76,32 +76,12 @@ class AccountReceivableController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(AccountReceivable $accountReceivable): JsonResponse
-    {
-        // Comentário para uso com Inertia:
-        // return Inertia::render('AccountsReceivable/Show', ['account' => $accountReceivable]);
-
-        return response()->json($accountReceivable);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(AccountReceivable $accountReceivable): JsonResponse
-    {
-        // Comentário para uso com Inertia:
-        // return Inertia::render('AccountsReceivable/Edit', ['account' => $accountReceivable]);
-
-        return response()->json(['message' => 'Form de edição de contas a receber', 'account' => $accountReceivable]);
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(UpdateAccountReceivableRequest $request, AccountReceivable $accountReceivable)
     {
+        dd($accountReceivable);
+        $this->authorizeMe('update', $accountReceivable);
         DB::beginTransaction();
 
         try {

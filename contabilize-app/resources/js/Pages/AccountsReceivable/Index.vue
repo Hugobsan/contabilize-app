@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from "vue";
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from "@inertiajs/vue3";
 import axios from "axios";
 import {
     VCard,
@@ -13,8 +13,8 @@ import {
     VDataTable,
 } from "vuetify/components";
 import AppLayout from "@/Layouts/AppLayout.vue";
+import "@mdi/font/css/materialdesignicons.css";
 
-// Props recebidas do backend
 const props = defineProps({ accounts: Array });
 
 const accountsReceivable = ref(props.accounts);
@@ -22,18 +22,7 @@ const modalVisible = ref(false);
 const isEditing = ref(false);
 const selectedAccount = ref(null);
 
-const updateForm = useForm({
-    description: "",
-    value: "",
-    due_date: "",
-    status: "",
-    category: "",
-    recurrence_period: "",
-    _method: "put",
-    _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-});
-
-const form = reactive({
+const form = useForm({
     description: "",
     value: "",
     due_date: "",
@@ -66,10 +55,6 @@ const fetchEnums = async () => {
             value: item.value,
             label: item.label,
         }));
-
-        console.log("Categories:", categories.value);
-        console.log("Statuses:", statuses.value);
-        console.log("Recurrence Periods:", recurrencePeriods.value);
     } catch (error) {
         console.error("Erro ao buscar enums:", error);
     }
@@ -87,6 +72,7 @@ const formattedAccountsReceivable = computed(() => {
                 (category) => category.value === account.category
             )?.label || account.category,
         value: `R$ ${parseFloat(account.value).toFixed(2).replace(".", ",")}`,
+        due_date: new Date(account.due_date).toLocaleDateString("pt-BR"),
     }));
 });
 
@@ -99,11 +85,34 @@ const openCreateModal = () => {
 
 const openEditModal = (account) => {
     form.description = account.description;
-    form.value = account.value;
-    form.due_date = account.due_date;
-    form.status = account.status;
-    form.category = account.category;
-    form.recurrence_period = account.recurrence_period;
+    let value = account.value
+        .replace("R$ ", "")
+        .replace(",", ".")
+        .replace(/[^\d.]/g, "");
+    form.value = parseFloat(value).toFixed(2);
+    form.due_date = account.due_date.split("/").reverse().join("-");
+
+    let formattedStatus = statuses.value.find(
+        (status) => status.label === account.status
+    );
+    form.status = formattedStatus.value;
+
+    let formattedCategory = categories.value.find(
+        (category) => category.label === account.category
+    );
+    form.category = formattedCategory.value;
+
+    if (account.recurrence_period) {
+        console.log(recurrencePeriods);
+        let formattedRecurrencePeriod = recurrencePeriods.value.find(
+            (recurrencePeriod) => recurrencePeriod.label === account.recurrence_period
+        );
+        console.log(account.recurrence_period, formattedRecurrencePeriod);
+        form.recurrence_period = formattedRecurrencePeriod.value;
+    }
+    else{
+        form.recurrence_period = "";
+    }
     isEditing.value = true;
     selectedAccount.value = account;
     modalVisible.value = true;
@@ -120,30 +129,46 @@ const resetForm = () => {
 
 const submitForm = () => {
     if (isEditing.value) {
-        updateForm.put(route("accounts-receivable.update", selectedAccount.value.id), {
-            data: form,
+        form.put(
+            route("accounts-receivable.update", selectedAccount.value.id),
+            {
+                data: form,
+                onSuccess: () => {
+                    modalVisible.value = false;
+                    resetForm();
+                },
+                onError: (error) => {
+                    alert(
+                        "Erro ao atualizar conta. Verifique os campos e tente novamente."
+                    );
+                    console.error("Erro ao atualizar conta:", error);
+                },
+            }
+        );
+    } else {
+        form.post(route("accounts-receivable.store"), {
             onSuccess: () => {
                 modalVisible.value = false;
                 resetForm();
             },
-        });
-    } else {
-        updateForm.post(route("accounts-receivable.store"), {
-            data: form,
-            onSuccess: () => {
-                modalVisible.value = false;
-                resetForm();
+            onError: (error) => {
+                alert(
+                    "Erro ao criar conta. Verifique os campos e tente novamente."
+                );
+                console.error("Erro ao criar conta:", error);
             },
         });
     }
 };
 
 const deleteAccount = (accountId) => {
-    if (confirm('Tem certeza que deseja excluir esta conta?')) {
-        updateForm.delete(route("accounts-receivable.destroy", accountId), {
+    if (confirm("Tem certeza que deseja excluir esta conta?")) {
+        form.delete(route("accounts-receivable.destroy", accountId), {
             onSuccess: () => {
-                accountsReceivable.value = accountsReceivable.value.filter(acc => acc.id !== accountId);
-            }
+                accountsReceivable.value = accountsReceivable.value.filter(
+                    (acc) => acc.id !== accountId
+                );
+            },
         });
     }
 };
@@ -186,21 +211,27 @@ onMounted(fetchEnums);
             <VCardText>
                 <VBtn
                     @click="openCreateModal"
-                    class="mb-4 bg-blue-500 hover:bg-blue-700 text-white"
+                    class="mb-4 bg-primary text-white"
                     >Nova Conta</VBtn
                 >
                 <VDataTable
                     :items="formattedAccountsReceivable"
-                    :headers="[{
-                        title: 'Descrição',
-                        key: 'description',
-                        sortable: true,
-                    },
-                    { title: 'Valor (R$)', key: 'value', sortable: true },
-                    { title: 'Data de Vencimento', key: 'due_date', sortable: true },
-                    { title: 'Status', key: 'status', sortable: true },
-                    { title: 'Categoria', key: 'category', sortable: true },
-                    { title: 'Opções', key: 'actions', sortable: false }]"
+                    :headers="[
+                        {
+                            title: 'Descrição',
+                            key: 'description',
+                            sortable: true,
+                        },
+                        { title: 'Valor (R$)', key: 'value', sortable: true },
+                        {
+                            title: 'Data de Vencimento',
+                            key: 'due_date',
+                            sortable: true,
+                        },
+                        { title: 'Status', key: 'status', sortable: true },
+                        { title: 'Categoria', key: 'category', sortable: true },
+                        { title: 'Opções', key: 'actions', sortable: false },
+                    ]"
                 >
                     <template v-slot:item.actions="{ item }">
                         <VBtn
@@ -208,15 +239,17 @@ onMounted(fetchEnums);
                             @click="openEditModal(item)"
                             class="mr-2"
                             title="Editar"
-                            >✏️</VBtn
                         >
+                            <v-icon>mdi-pencil</v-icon>
+                        </VBtn>
                         <VBtn
                             small
                             color="error"
                             @click="deleteAccount(item.id)"
                             title="Excluir"
-                            >🗑️</VBtn
                         >
+                            <v-icon>mdi-delete</v-icon>
+                        </VBtn>
                     </template>
                 </VDataTable>
             </VCardText>

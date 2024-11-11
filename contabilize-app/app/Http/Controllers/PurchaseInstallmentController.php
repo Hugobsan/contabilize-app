@@ -11,20 +11,36 @@ use Illuminate\Support\Facades\Log;
 
 class PurchaseInstallmentController extends Controller
 {
-    public function __construct()
+    protected function authorizeMe($permission, $accountPayable = PurchaseInstallment::class)
     {
-        $this->authorizeResource(PurchaseInstallment::class, 'purchaseInstallment');
+        if (!auth()->user()->can($permission, $accountPayable)) {
+            return redirect()->back()->with('error', 'Você não tem permissão para acessar essa página.');
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(PurchaseInstallment $purchaseInstallment): JsonResponse
+    public function update(Request $request, PurchaseInstallment $purchaseInstallment)
     {
-        // Comentário para uso com Inertia:
-        // return Inertia::render('PurchaseInstallments/Show', ['installment' => $purchaseInstallment]);
+        $this->authorizeMe('update', $purchaseInstallment);
 
-        return response()->json($purchaseInstallment);
+        $request->validate([
+            'due_date' => 'nullable|date',
+            'value' => 'nullable|numeric',
+            'status' => 'nullable|in:0,1',
+            'purchase_id' => 'nullable|exists:credit_card_purchases,id',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $purchaseInstallment->update($request->all());
+            DB::commit();
+
+            return back()->with('success', 'Parcela atualizada com sucesso!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erro ao atualizar a parcela: ' . $e->getMessage());
+
+            return back()->with('error', 'Erro ao atualizar a parcela. Tente novamente mais tarde.');
+        }
     }
 
     /**
@@ -36,9 +52,6 @@ class PurchaseInstallmentController extends Controller
         try {
             $purchaseInstallment->delete();
             DB::commit();
-
-            // Comentário para uso com Inertia:
-            // return redirect()->route('purchase-installments.index')->with('success', 'Parcela excluída com sucesso!');
 
             return response()->json(['message' => 'Parcela excluída com sucesso!']);
         } catch (\Exception $e) {

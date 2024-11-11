@@ -14,9 +14,11 @@ use Inertia\Inertia;
 
 class CreditCardController extends Controller
 {
-    public function __construct()
+    protected function authorizeMe($permission, $accountPayable = CreditCard::class)
     {
-        // $this->authorizeResource(CreditCard::class, 'creditCard');
+        if (!auth()->user()->can($permission, $accountPayable)) {
+            return redirect()->back()->with('error', 'Você não tem permissão para acessar essa página.');
+        }
     }
 
     /**
@@ -24,20 +26,11 @@ class CreditCardController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorizeMe('viewAny');
+
         $creditCards = CreditCard::where('user_id', Auth::id())->get();
 
         return Inertia::render('CreditCards/Index', ['creditCards' => $creditCards]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): JsonResponse
-    {
-        // Comentário para uso com Inertia:
-        // return Inertia::render('CreditCards/Create');
-
-        return response()->json(['message' => 'Formulário de criação de cartão de crédito']);
     }
 
     /**
@@ -45,6 +38,8 @@ class CreditCardController extends Controller
      */
     public function store(StoreCreditCardRequest $request)
     {
+        $this->authorizeMe('create');
+
         DB::beginTransaction();
         try {
             $creditCard = CreditCard::create($request->validated() + ['user_id' => Auth::id()]);
@@ -66,9 +61,8 @@ class CreditCardController extends Controller
      */
     public function show(CreditCard $creditCard)
     {
-        if(auth()->user()->cant('view', $creditCard)) {
-            return back()->with('error', 'Você não tem permissão para visualizar este cartão de crédito.');
-        }
+        $this->authorizeMe('view', $creditCard);
+
         // Pré-carregar relação de compras com cartão de crédito
         $creditCard->load('purchases.installments');
         // Comentário para uso com Inertia:
@@ -76,21 +70,11 @@ class CreditCardController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(CreditCard $creditCard): JsonResponse
-    {
-        // Comentário para uso com Inertia:
-        // return Inertia::render('CreditCards/Edit', ['card' => $creditCard]);
-
-        return response()->json(['message' => 'Formulário de edição de cartão de crédito', 'card' => $creditCard]);
-    }
-
-    /**
      * Update the specified resource in storage.
      */
     public function update(UpdateCreditCardRequest $request, CreditCard $creditCard)
     {
+        $this->authorizeMe('update', $creditCard);
         DB::beginTransaction();
         try {
             $creditCard->update($request->validated());
@@ -112,6 +96,7 @@ class CreditCardController extends Controller
      */
     public function destroy(CreditCard $creditCard)
     {
+        $this->authorizeMe('delete', $creditCard);
         DB::beginTransaction();
         try {
             $creditCard->delete();

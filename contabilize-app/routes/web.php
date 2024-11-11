@@ -18,7 +18,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', function () {
         return redirect()->route('dashboard');
     });
-    
+
     // Rotas para contas a pagar e receber
     Route::resource('accounts-payable', AccountPayableController::class);
     Route::resource('accounts-receivable', AccountReceivableController::class);
@@ -36,7 +36,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Rotas para o módulo de parcelas (apenas visualização e exclusão)
     Route::resource('purchase-installments', PurchaseInstallmentController::class)
-        ->only(['show', 'destroy']);
+        ->only(['update', 'destroy']);
 
     //Rotas de relatório
     Route::get('/dashboard', [ReportController::class, 'index'])->name('dashboard');

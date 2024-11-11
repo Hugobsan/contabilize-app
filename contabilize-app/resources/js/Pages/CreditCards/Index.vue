@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from "vue";
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm } from "@inertiajs/vue3";
 import {
     VCard,
     VCardTitle,
@@ -20,15 +20,7 @@ const modalVisible = ref(false);
 const isEditing = ref(false);
 const selectedCard = ref(null);
 
-const updateForm = useForm({
-    nickname: "",
-    credit_limit: "",
-    available_limit: "",
-    _method: "put",
-    _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-});
-
-const form = reactive({
+const form = useForm({
     nickname: "",
     credit_limit: "",
     available_limit: "",
@@ -38,8 +30,12 @@ const form = reactive({
 const formattedCreditCards = computed(() => {
     return creditCards.value.map((card) => ({
         ...card,
-        credit_limit: `R$ ${parseFloat(card.credit_limit).toFixed(2).replace(".", ",")}`,
-        available_limit: `R$ ${parseFloat(card.available_limit).toFixed(2).replace(".", ",")}`,
+        credit_limit: `R$ ${parseFloat(card.credit_limit)
+            .toFixed(2)
+            .replace(".", ",")}`,
+        available_limit: `R$ ${parseFloat(card.available_limit)
+            .toFixed(2)
+            .replace(".", ",")}`,
     }));
 });
 
@@ -52,8 +48,12 @@ const openCreateModal = () => {
 
 const openEditModal = (card) => {
     form.nickname = card.nickname;
-    form.credit_limit = parseFloat(card.credit_limit.replace('R$', '').replace(',', '.'));
-    form.available_limit = parseFloat(card.available_limit.replace('R$', '').replace(',', '.'));
+    form.credit_limit = parseFloat(
+        card.credit_limit.replace("R$", "").replace(",", ".")
+    );
+    form.available_limit = parseFloat(
+        card.available_limit.replace("R$", "").replace(",", ".")
+    );
     isEditing.value = true;
     selectedCard.value = card;
     modalVisible.value = true;
@@ -67,34 +67,51 @@ const resetForm = () => {
 
 const submitForm = () => {
     if (isEditing.value) {
-        updateForm.put(route("credit-cards.update", selectedCard.value.id), {
+        form.put(route("credit-cards.update", selectedCard.value.id), {
             data: form,
+            onSuccess: () => {
+                const index = creditCards.value.findIndex(
+                    (acc) => acc.id === selectedCard.value.id
+                );
+
+                if (index !== -1) {
+                    // Atualize o item diretamente na tabela com os novos valores
+                    creditCards.value[index] = {
+                        ...form,
+                        id: selectedCard.value.id,
+                    };
+                    modalVisible.value = false;
+                    resetForm();
+                }
+            },
+            onError: () => {
+                console.log("Erro: ", form.errors);
+            },
+        });
+    } else {
+        form.post(route("credit-cards.store"), {
             onSuccess: () => {
                 modalVisible.value = false;
                 resetForm();
             },
-        });
-    } else {
-        updateForm.post(route("credit-cards.store"), {
-            data: form,
-            onSuccess: () => {
-                modalVisible.value = false;
-                resetForm();
+            onError: () => {
+                console.log("Erro: ", form.errors);
             },
         });
     }
 };
 
 const deleteCard = (cardId) => {
-    if (confirm('Tem certeza que deseja excluir este cartão?')) {
-        updateForm.delete(route("credit-cards.destroy", cardId), {
+    if (confirm("Tem certeza que deseja excluir este cartão?")) {
+        form.delete(route("credit-cards.destroy", cardId), {
             onSuccess: () => {
-                creditCards.value = creditCards.value.filter(card => card.id !== cardId);
-            }
+                creditCards.value = creditCards.value.filter(
+                    (card) => card.id !== cardId
+                );
+            },
         });
     }
 };
-
 </script>
 
 <template>
@@ -111,19 +128,29 @@ const deleteCard = (cardId) => {
             <VCardText>
                 <VBtn
                     @click="openCreateModal"
-                    class="mb-4 bg-blue-500 hover:bg-blue-700 text-white"
+                    class="mb-4 bg-primary px-2 hover:bg-blue-700 text-white"
                     >Novo Cartão</VBtn
                 >
                 <VDataTable
                     :items="formattedCreditCards"
-                    :headers="[{
-                        title: 'Apelido',
-                        key: 'nickname',
-                        sortable: true,
-                    },
-                    { title: 'Limite de Crédito (R$)', key: 'credit_limit', sortable: true },
-                    { title: 'Limite Disponível (R$)', key: 'available_limit', sortable: true },
-                    { title: 'Opções', key: 'actions', sortable: false }]"
+                    :headers="[
+                        {
+                            title: 'Apelido',
+                            key: 'nickname',
+                            sortable: true,
+                        },
+                        {
+                            title: 'Limite de Crédito (R$)',
+                            key: 'credit_limit',
+                            sortable: true,
+                        },
+                        {
+                            title: 'Limite Disponível (R$)',
+                            key: 'available_limit',
+                            sortable: true,
+                        },
+                        { title: 'Opções', key: 'actions', sortable: false },
+                    ]"
                 >
                     <template v-slot:item.actions="{ item }">
                         <VBtn
@@ -131,22 +158,26 @@ const deleteCard = (cardId) => {
                             @click="openEditModal(item)"
                             class="mr-2"
                             title="Editar"
-                            >✏️</VBtn
                         >
+                            <v-icon>mdi-pencil</v-icon>
+                        </VBtn>
                         <VBtn
                             small
                             color="error"
                             @click="deleteCard(item.id)"
                             title="Excluir"
-                            >🗑️</VBtn
+                            class="mr-2"
                         >
+                            <v-icon>mdi-delete</v-icon>
+                        </VBtn>
                         <VBtn
                             small
                             color="info"
                             :href="route('credit-cards.show', item.id)"
                             title="Visualizar"
-                            >📄</VBtn
                         >
+                            <v-icon>mdi-file</v-icon>
+                        </VBtn>
                     </template>
                 </VDataTable>
             </VCardText>

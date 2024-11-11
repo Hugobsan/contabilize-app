@@ -257,6 +257,7 @@ onMounted(fetchEnums);
                         </VBtn>
                         <VBtn
                             small
+                            class="mr-2"
                             color="error"
                             @click="deleteAccount(item.id)"
                             title="Excluir"

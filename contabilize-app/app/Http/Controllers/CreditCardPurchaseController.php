@@ -14,9 +14,11 @@ use Illuminate\Support\Facades\Log;
 
 class CreditCardPurchaseController extends Controller
 {
-    public function __construct()
+    protected function authorizeMe($permission, $accountPayable = CreditCardPurchase::class)
     {
-        $this->authorizeResource(CreditCardPurchase::class, 'creditCardPurchase');
+        if (!auth()->user()->can($permission, $accountPayable)) {
+            return redirect()->back()->with('error', 'Você não tem permissão para acessar essa página.');
+        }
     }
 
     /**
@@ -24,6 +26,8 @@ class CreditCardPurchaseController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        $this->authorizeMe('viewAny', CreditCardPurchase::class);
+
         $purchases = CreditCardPurchase::with('creditCard')
             ->whereHas('creditCard', function ($query) {
                 $query->where('user_id', Auth::id());
@@ -37,104 +41,23 @@ class CreditCardPurchaseController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): JsonResponse
-    {
-        // Comentário para uso com Inertia:
-        // return Inertia::render('CreditCardPurchases/Create');
-
-        return response()->json(['message' => 'Formulário de criação de compra com cartão de crédito']);
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCreditCardPurchaseRequest $request): JsonResponse
+    public function store(StoreCreditCardPurchaseRequest $request)
     {
+        $this->authorizeMe('create');
+
         DB::beginTransaction();
         try {
             $purchase = CreditCardPurchase::create($request->validated());
-
             DB::commit();
 
-            // Comentário para uso com Inertia:
-            // return redirect()->route('credit-card-purchases.index')->with('success', 'Compra criada com sucesso!');
-
-            return response()->json(['message' => 'Compra criada com sucesso!', 'purchase' => $purchase]);
+            return back()->with('success', 'Compra criada com sucesso!');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Erro ao criar a compra: ' . $e->getMessage());
 
-            return response()->json(['message' => 'Erro ao criar a compra. Tente novamente mais tarde.'], 500);
-        }
-    }
-
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(CreditCardPurchase $creditCardPurchase): JsonResponse
-    {
-        // Comentário para uso com Inertia:
-        // return Inertia::render('CreditCardPurchases/Show', ['purchase' => $creditCardPurchase]);
-
-        return response()->json($creditCardPurchase);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(CreditCardPurchase $creditCardPurchase): JsonResponse
-    {
-        // Comentário para uso com Inertia:
-        // return Inertia::render('CreditCardPurchases/Edit', ['purchase' => $creditCardPurchase]);
-
-        return response()->json(['message' => 'Formulário de edição de compra com cartão de crédito', 'purchase' => $creditCardPurchase]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateCreditCardPurchaseRequest $request, CreditCardPurchase $creditCardPurchase): JsonResponse
-    {
-        DB::beginTransaction();
-        try {
-            $creditCardPurchase->update($request->validated());
-
-            DB::commit();
-
-            // Comentário para uso com Inertia:
-            // return redirect()->route('credit-card-purchases.index')->with('success', 'Compra atualizada com sucesso!');
-
-            return response()->json(['message' => 'Compra atualizada com sucesso!', 'purchase' => $creditCardPurchase]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Erro ao atualizar a compra: ' . $e->getMessage());
-
-            return response()->json(['message' => 'Erro ao atualizar a compra. Tente novamente mais tarde.'], 500);
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(CreditCardPurchase $creditCardPurchase): JsonResponse
-    {
-        DB::beginTransaction();
-        try {
-            $creditCardPurchase->delete();
-            DB::commit();
-
-            // Comentário para uso com Inertia:
-            // return redirect()->route('credit-card-purchases.index')->with('success', 'Compra excluída com sucesso!');
-
-            return response()->json(['message' => 'Compra excluída com sucesso!']);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Erro ao excluir a compra: ' . $e->getMessage());
-
-            return response()->json(['message' => 'Erro ao excluir a compra. Tente novamente mais tarde.'], 500);
+            return back()->with('error', 'Erro ao criar a compra. Tente novamente mais tarde.');
         }
     }
 }

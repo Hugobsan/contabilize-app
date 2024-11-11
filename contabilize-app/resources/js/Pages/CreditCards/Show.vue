@@ -50,9 +50,11 @@ const formattedPurchases = computed(() => {
 
 const purchaseForm = useForm({
     description: "",
-    value: "",
+    amount: "",
     purchase_date: "",
-    due_date: "",
+    category: "",
+    installments_count: "",
+    credit_card_id: props.card.id,
 });
 
 const installmentForm = useForm({
@@ -69,12 +71,12 @@ const openCreatePurchaseModal = () => {
     modalPurchaseVisible.value = true;
 };
 
-// Abrir modal para nova parcela
-const openCreateInstallmentModal = (purchase) => {
-    console.log("Test");
-    installmentForm.purchase_id = purchase.id;
-    modalInstallmentVisible.value = true;
-};
+const formattedCategories = computed(() => {
+    return categories.value.map((item) => ({
+        value: item.value,
+        title: item.label,
+    }));
+});
 
 // Resetar formulário de compra
 const resetPurchaseForm = () => {
@@ -90,19 +92,11 @@ const submitPurchaseForm = () => {
         onSuccess: () => {
             // Atualizar a lista de compras com a nova compra
             purchases.value.push(purchaseForm.data);
-
             modalPurchaseVisible.value = false;
             resetPurchaseForm();
         },
-    });
-};
-
-// Submeter formulário de parcela
-const submitInstallmentForm = () => {
-    installmentForm.post(route("installments.store"), {
-        onSuccess: () => {
-            modalInstallmentVisible.value = false;
-            // Atualizar a lista de parcelas associadas à compra
+        onError: () => {
+            console.log("Erro: ", purchaseForm.errors);
         },
     });
 };
@@ -175,14 +169,6 @@ onMounted(fetchEnums);
                     <template class="w-full" v-slot:expanded-row="{ item }">
                         <div class="mt-2 mb-3 flex justify-start">
                             <p class="font-semibold text-xl px-2">Parcelas</p>
-                            <VBtn
-                                size="x-small"
-                                class="mx-4 my-1 bg-primary flex flex-col items-center justify-center"
-                                @click="openCreateInstallmentModal(item)"
-                                title="Adicionar Parcela"
-                            >
-                                <v-icon>mdi-plus</v-icon>
-                            </VBtn>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                             <VCard
@@ -250,7 +236,7 @@ onMounted(fetchEnums);
                         required
                     ></VTextField>
                     <VTextField
-                        v-model="purchaseForm.value"
+                        v-model="purchaseForm.amount"
                         label="Valor (R$)"
                         type="number"
                         required
@@ -261,10 +247,20 @@ onMounted(fetchEnums);
                         type="date"
                         required
                     ></VTextField>
+                    <VSelect
+                        v-model="purchaseForm.category"
+                        :items="formattedCategories"
+                        item-text="title"
+                        item-value="value"
+                        label="Categoria"
+                        required
+                    ></VSelect>
+
                     <VTextField
-                        v-model="purchaseForm.due_date"
-                        label="Data de Vencimento"
-                        type="date"
+                        v-model="purchaseForm.installments_count"
+                        label="Número de Parcelas"
+                        type="number"
+                        min="1"
                         required
                     ></VTextField>
                 </VCardText>
@@ -275,35 +271,6 @@ onMounted(fetchEnums);
                     <VBtn @click="submitPurchaseForm" color="primary">{{
                         isEditingPurchase ? "Salvar" : "Criar"
                     }}</VBtn>
-                </div>
-            </VCard>
-        </VDialog>
-
-        <!-- Modal para criar nova parcela -->
-        <VDialog v-model="modalInstallmentVisible" persistent max-width="600">
-            <VCard>
-                <VCardTitle>Nova Parcela</VCardTitle>
-                <VCardText>
-                    <VTextField
-                        v-model="installmentForm.amount"
-                        label="Valor da Parcela (R$)"
-                        type="number"
-                        required
-                    ></VTextField>
-                    <VTextField
-                        v-model="installmentForm.due_date"
-                        label="Data de Vencimento"
-                        type="date"
-                        required
-                    ></VTextField>
-                </VCardText>
-                <div class="flex justify-end p-4">
-                    <VBtn @click="modalInstallmentVisible = false" class="mr-2"
-                        >Cancelar</VBtn
-                    >
-                    <VBtn @click="submitInstallmentForm" color="primary"
-                        >Criar</VBtn
-                    >
                 </div>
             </VCard>
         </VDialog>
